@@ -1,9 +1,39 @@
-#pragma kernel CSMain
+#pragma kernel CreateBlock
 
-RWTexture2D<float4> Result;
+float3 position = float3(0, 0, 0);
 
-[numthreads(8,8,1)]
-void CSMain (uint3 id : SV_DispatchThreadID)
+struct Vertex
 {
-    Result[id.xy] = float4(id.x & id.y, (id.x & 15)/15.0, (id.y & 15)/15.0, 0.0);
+    float3 position;
+    float3 normal;
+    float2 uv;
+};
+
+RWStructuredBuffer<Vertex> generated_vertecies;
+
+Vertex generateVertex(float3 position, float3 normal, float2 uv)
+{
+    Vertex vertex;
+    vertex.position = position;
+    vertex.normal = normal;
+    vertex.uv = uv;
+
+    return vertex;
+}
+
+void generateTriangle(int index)
+{
+    generated_vertecies[index] = generateVertex(position, float3(1, 0, 0), float2(0, 0));
+    generated_vertecies[index + 1] = generateVertex(position + float3(1, 0, 0), float3(1, 0, 0), float2(1, 0));
+    generated_vertecies[index + 2] = generateVertex(position + float3(0, 1, 0), float3(1, 0, 0), float2(0, 1));
+    
+    generated_vertecies[index + 3] = generateVertex(position + float3(1, 0, 0), float3(1, 0, 0), float2(1, 0));
+    generated_vertecies[index + 4] = generateVertex(position + float3(1, 1, 0), float3(1, 0, 0), float2(1, 1));
+    generated_vertecies[index + 5] = generateVertex(position + float3(0, 1, 0), float3(1, 0, 0), float2(0, 1));
+}
+
+[numthreads(1,1,1)]
+void CreateBlock (uint3 id : SV_DispatchThreadID)
+{
+    generateTriangle(0);
 }
