@@ -9,9 +9,10 @@ struct Vertex
     float2 uv;
 };
 
-RWStructuredBuffer<Vertex> generated_vertecies;
+RWStructuredBuffer<Vertex> generated_vertices;
+RWStructuredBuffer<int> generated_triangles;
 
-Vertex generateVertex(float3 position, float3 normal, float2 uv)
+Vertex generate_vertex(const float3 position, const float3 normal, const float2 uv)
 {
     Vertex vertex;
     vertex.position = position;
@@ -21,19 +22,26 @@ Vertex generateVertex(float3 position, float3 normal, float2 uv)
     return vertex;
 }
 
-void generateTriangle(int index)
+void generate_front(const int start_vertex_index, const int start_triangle_index)
 {
-    generated_vertecies[index] = generateVertex(position, float3(1, 0, 0), float2(0, 0));
-    generated_vertecies[index + 1] = generateVertex(position + float3(1, 0, 0), float3(1, 0, 0), float2(1, 0));
-    generated_vertecies[index + 2] = generateVertex(position + float3(0, 1, 0), float3(1, 0, 0), float2(0, 1));
+    generated_vertices[start_vertex_index] = generate_vertex(position, float3(0, 0, -1), float2(0, 0));
+    generated_vertices[start_vertex_index + 1] = generate_vertex(position + float3(1, 0, 0), float3(0, 0, -1), float2(1, 0));
+    generated_vertices[start_vertex_index + 2] = generate_vertex(position + float3(0, 1, 0), float3(0, 0, -1), float2(0, 1));
     
-    generated_vertecies[index + 3] = generateVertex(position + float3(1, 0, 0), float3(1, 0, 0), float2(1, 0));
-    generated_vertecies[index + 4] = generateVertex(position + float3(1, 1, 0), float3(1, 0, 0), float2(1, 1));
-    generated_vertecies[index + 5] = generateVertex(position + float3(0, 1, 0), float3(1, 0, 0), float2(0, 1));
+    generated_vertices[start_vertex_index + 3] = generate_vertex(position + float3(1, 0, 0), float3(0, 0, -1), float2(1, 0));
+    generated_vertices[start_vertex_index + 4] = generate_vertex(position + float3(1, 1, 0), float3(0, 0, -1), float2(1, 1));
+    generated_vertices[start_vertex_index + 5] = generate_vertex(position + float3(0, 1, 0), float3(0, 0, -1), float2(0, 1));
+
+    generated_triangles[start_triangle_index] = start_triangle_index;
+    generated_triangles[start_triangle_index + 1] = start_triangle_index + 2;
+    generated_triangles[start_triangle_index + 2] = start_triangle_index + 1;
+    generated_triangles[start_triangle_index + 3] = start_triangle_index + 3;
+    generated_triangles[start_triangle_index + 4] = start_triangle_index + 5;
+    generated_triangles[start_triangle_index + 5] = start_triangle_index + 4;
 }
 
-[numthreads(1,1,1)]
+[numthreads(8,1,1)]
 void CreateBlock (uint3 id : SV_DispatchThreadID)
 {
-    generateTriangle(0);
+    generate_front(0, 0);
 }

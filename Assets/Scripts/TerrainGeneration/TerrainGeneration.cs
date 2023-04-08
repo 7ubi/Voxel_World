@@ -12,10 +12,12 @@ public class TerrainGeneration : MonoBehaviour
         public Vector3 normal;
         public Vector2 uv;
     }
-
+    
     private ComputeBuffer verteciesBuffer;
+    private ComputeBuffer triangleBuffer;
 
     private Vertex[] vertices = new Vertex[9];
+    private int[] triangles = new int[9];
     
     private const int SOURCE_VERT_STRIDE = sizeof(float) * (3 + 3 + 2);
 
@@ -29,46 +31,49 @@ public class TerrainGeneration : MonoBehaviour
         GenerateTerrain();
     }
     
-    private Mesh GenerateMesh(Vertex[] verts, int[] indices)
+    private Mesh GenerateMesh()
     {
         var mesh = new Mesh();
-        var vertices = new Vector3[verts.Length];
-        var normals = new Vector3[verts.Length];
-        var uvs = new Vector2[verts.Length];
-        for(var i = 0; i < verts.Length; i++) {
-            var v = verts[i];
-            vertices[i] = v.position;
-            normals[i] = v.normal;
-            uvs[i] = v.uv;
+        var vertices = new Vector3[this.vertices.Length];
+        var normals = new Vector3[this.vertices.Length];
+        var uvs = new Vector2[this.vertices.Length];
+        for(var i = 0; i < this.vertices.Length; i++) {
+            var vertex = this.vertices[i];
+            vertices[i] = vertex.position;
+            normals[i] = vertex.normal;
+            uvs[i] = vertex.uv;
         }
         mesh.SetVertices(vertices);
         mesh.SetNormals(normals);
-        mesh.SetUVs(0, uvs); // TEXCOORD0
-        mesh.triangles = indices;
-        mesh.Optimize(); // Let Unity optimize the buffer orders
+        mesh.SetUVs(0, uvs);
+        mesh.triangles = this.triangles;
+        mesh.Optimize();
         return mesh;
     }
 
     private void GenerateTerrain()
     {
         var kernelId = terrainGenerationCompute.FindKernel("CreateBlock");
-        
+
         verteciesBuffer = new ComputeBuffer(vertices.Length, SOURCE_VERT_STRIDE, ComputeBufferType.Append);
+        triangleBuffer = new ComputeBuffer(triangles.Length, sizeof(int), ComputeBufferType.Append);
 
-        //terrainGenerationCompute.SetVector("position", new Vector4(0, 0, 0, 0));
         verteciesBuffer.SetData(vertices);
-        terrainGenerationCompute.SetBuffer(kernelId, "generated_vertecies", verteciesBuffer);
-        
+        triangleBuffer.SetData(triangles);
+        terrainGenerationCompute.SetBuffer(kernelId, "generated_vertices", verteciesBuffer);
+        terrainGenerationCompute.SetBuffer(kernelId, "generated_triangles", triangleBuffer);
 
-        terrainGenerationCompute.Dispatch(kernelId, 1, 1, 1);
+        terrainGenerationCompute.Dispatch(kernelId, 8, 1, 1);
         
         verteciesBuffer.GetData(vertices);
-
-        _meshFilter.mesh = GenerateMesh(vertices, new[] { 0, 2, 1, 3, 5, 4 });
+        triangleBuffer.GetData(triangles);
+        
+        _meshFilter.mesh = GenerateMesh();
     }
 
     private void OnDestroy()
     {
         verteciesBuffer.Dispose();
+        triangleBuffer.Dispose();
     }
 }
