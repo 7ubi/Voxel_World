@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 
 namespace TerrainGeneration
@@ -7,8 +8,8 @@ namespace TerrainGeneration
         private ComputeBuffer _verticesBuffer;
         private ComputeBuffer _triangleBuffer;
 
-        private readonly Vertex[] _vertices = new Vertex[210];
-        private readonly int[] _triangles = new int[210];
+        private readonly Vertex[] _vertices = new Vertex[36000];
+        private readonly int[] _triangles = new int[36000];
         
         private const int SourceVertStride = sizeof(float) * (3 + 3 + 2);
 
@@ -58,8 +59,8 @@ namespace TerrainGeneration
             
             _verticesBuffer.GetData(_vertices);
             _triangleBuffer.GetData(_triangles);
-            
             _meshFilter.mesh = GenerateMesh();
+
         }
 
         private void OnDestroy()
