@@ -8,6 +8,10 @@ RWStructuredBuffer<int> generated_triangles;
 [numthreads(8,1,1)]
 void CreateBlock (uint3 id : SV_DispatchThreadID)
 {
-    generate_front(float3(0, 0, 0), 0, 0, generated_vertices, generated_triangles);
-    generate_top(float3(0, 0, 0), 6, 6, generated_vertices, generated_triangles);
+    generate_front(float3(0, 0, 0), 0, generated_vertices, generated_triangles);
+    generate_back(float3(0, 0, 0), 6, generated_vertices, generated_triangles);
+    generate_top(float3(0, 0, 0), 12, generated_vertices, generated_triangles);
+    generate_bottom(float3(0, 0, 0), 18, generated_vertices, generated_triangles);
+    generate_right(float3(0, 0, 0), 24, generated_vertices, generated_triangles);
+    generate_left(float3(0, 0, 0), 30, generated_vertices, generated_triangles);
 }
