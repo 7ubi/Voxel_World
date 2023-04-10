@@ -1,6 +1,3 @@
-using System;
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class WorldGeneration : MonoBehaviour
@@ -11,8 +8,8 @@ public class WorldGeneration : MonoBehaviour
     private void Update()
     {
         if (!Input.GetKeyDown(KeyCode.Space)) return;
-        var newChunk = Instantiate(chunk);
         x += 8;
-        chunk.transform.position = new Vector3(x, 0, 0);
+        Instantiate(chunk, new Vector3(x, 0, 0), Quaternion.identity);
+        
     }
 }
