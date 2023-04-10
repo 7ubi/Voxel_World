@@ -10,9 +10,9 @@ public class WorldGeneration : MonoBehaviour
 
     private void Update()
     {
-        //if (!Input.GetKeyDown(KeyCode.Space)) return;
-        //var newChunk = Instantiate(chunk);
-        //x += 1;
-        //hunk.transform.position = new Vector3(0, x, 0);
+        if (!Input.GetKeyDown(KeyCode.Space)) return;
+        var newChunk = Instantiate(chunk);
+        x += 8;
+        chunk.transform.position = new Vector3(x, 0, 0);
     }
 }

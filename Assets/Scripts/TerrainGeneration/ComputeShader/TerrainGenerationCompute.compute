@@ -1,5 +1,8 @@
 #pragma kernel CreateBlock
+#include "Noise.compute"
 #include "BlockGeneration.compute"
+
+float4 offset;
 
 RWStructuredBuffer<vertex> generated_vertices;
 RWStructuredBuffer<int> generated_triangles;
@@ -8,10 +11,23 @@ RWStructuredBuffer<int> generated_triangles;
 [numthreads(8,1,1)]
 void CreateBlock (uint3 id : SV_DispatchThreadID)
 {
-    generate_front(float3(0, 0, 0), 0, generated_vertices, generated_triangles);
-    generate_back(float3(0, 0, 0), 6, generated_vertices, generated_triangles);
-    generate_top(float3(0, 0, 0), 12, generated_vertices, generated_triangles);
-    generate_bottom(float3(0, 0, 0), 18, generated_vertices, generated_triangles);
-    generate_right(float3(0, 0, 0), 24, generated_vertices, generated_triangles);
-    generate_left(float3(0, 0, 0), 30, generated_vertices, generated_triangles);
+    const int min_height = 10;
+    const int max_height = 20;
+    const float scale = 15;
+    for(int x = 0; x < 8; x++)
+    {
+        for(int z = 0; z < 8; z++)
+        {
+            for(int y = 0; y < int(snoise(float2((x + offset.x) / scale, (z + offset.z) / scale)) * max_height) + min_height; y++) {
+                const float3 pos = float3(x, y, z);
+                generate_front(pos, generated_vertices, generated_triangles);
+                generate_back(pos, generated_vertices, generated_triangles);
+                generate_top(pos, generated_vertices, generated_triangles);
+                generate_bottom(pos, generated_vertices, generated_triangles);
+                generate_right(pos, generated_vertices, generated_triangles);
+                generate_left(pos, generated_vertices, generated_triangles);
+            }
+        }
+    
+    }
 }
