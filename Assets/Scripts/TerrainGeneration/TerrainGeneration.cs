@@ -31,10 +31,12 @@ namespace TerrainGeneration
         private Vector2[] uvs;
         
         private MeshFilter _meshFilter;
+        private MeshCollider _meshCollider;
         
         private void Start()
         {
             _meshFilter = GetComponent<MeshFilter>();
+            _meshCollider = GetComponent<MeshCollider>();
             _mesh = new Mesh();
             _vertices = new Vertex[36 * chunkSize * chunkSize * maxHeight];
             _triangles = new int[36 * chunkSize * chunkSize * maxHeight];
@@ -58,6 +60,7 @@ namespace TerrainGeneration
             _mesh.SetUVs(0, uvs);
             _mesh.triangles = _triangles;
             _meshFilter.mesh = _mesh;
+            _meshCollider.sharedMesh = _mesh;
         }
 
         private void GenerateTerrain()
