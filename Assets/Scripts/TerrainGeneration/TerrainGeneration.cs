@@ -11,6 +11,8 @@ namespace TerrainGeneration
         [SerializeField] private int minHeight;
         [SerializeField] private int maxHeight;
         [SerializeField] private int chunkSize;
+
+        [SerializeField] private bool debugMessages;
         
         private const int SourceVertStride = sizeof(float) * (3 + 3 + 2);
         
@@ -36,7 +38,7 @@ namespace TerrainGeneration
             _mesh = new Mesh();
             _vertices = new Vertex[36 * chunkSize * chunkSize * maxHeight];
             _triangles = new int[36 * chunkSize * chunkSize * maxHeight];
-            _blockIds = new int[chunkSize * chunkSize * maxHeight];
+            _blockIds = new int[(chunkSize + 3) * (chunkSize + 3) * (maxHeight + 2)];
             GenerateTerrain();
         }
         
@@ -79,13 +81,13 @@ namespace TerrainGeneration
 
             var time = DateTime.Now;
             terrainGenerationCompute.Dispatch(kernelId, 8, 1, 1);
-            Debug.Log("Time to run Shader: " + (DateTime.Now - time));
+            Log("Time to run Shader: " + (DateTime.Now - time));
             
             time = DateTime.Now;
             _verticesBuffer.GetData(_vertices);
             _triangleBuffer.GetData(_triangles);
             GenerateMesh();
-            Debug.Log("Time to generate Mesh: " + (DateTime.Now - time));
+            Log("Time to generate Mesh: " + (DateTime.Now - time));
 
         }
 
@@ -93,6 +95,15 @@ namespace TerrainGeneration
         {
             _verticesBuffer.Dispose();
             _triangleBuffer.Dispose();
+            _blockIdBuffer.Dispose();
+        }
+
+        private void Log(String message)
+        {
+            if (debugMessages)
+            {
+                Debug.Log(message);
+            }
         }
     }
 }

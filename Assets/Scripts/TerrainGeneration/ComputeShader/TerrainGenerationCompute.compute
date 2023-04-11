@@ -14,19 +14,28 @@ RWStructuredBuffer<int> generated_triangles;
 RWStructuredBuffer<int> block_ids;
 
 
-int get_1d_index_from_3d(const int x, const int y, const int z)
+int get_1d_index_from_3d(int x, int y, int z)
 {
-    return (z * chunk_size * max_height) + (y * chunk_size) + x;
+    x++;
+    y++;
+    z++;
+    return (z * (chunk_size + 2) * (max_height + 2)) + (y * (chunk_size + 2)) + x;
+}
+
+int get_height(const int x, const int z)
+{
+    return int(snoise(float2((x + offset.x) / SCALE, (z + offset.z) / SCALE)) * (max_height - min_height) + min_height);
 }
 
 void generate_chunk_block_ids()
 {
-    for(int x = 0; x < chunk_size; x++)
+    for(int x = -1; x <= chunk_size; x++)
     {
-        for(int z = 0; z < chunk_size; z++)
+        for(int z = -1; z <= chunk_size; z++)
         {
-            for(int y = 0; y < int(snoise(float2((x + offset.x) / SCALE, (z + offset.z) / SCALE)) * (max_height - min_height) + min_height); y++) {
-                block_ids[get_1d_index_from_3d(x, y, z)] = 1;
+            for(int y = -1; y <= max_height; y++)
+            {
+                block_ids[get_1d_index_from_3d(x, y, z)] = y < get_height(x, z) ? 1: 0;
             }
         }
     }
@@ -43,12 +52,29 @@ void generate_vertices()
                 if(block_ids[get_1d_index_from_3d(x, y, z)] == 1)
                 {
                     const float3 pos = float3(x, y, z);
-                    generate_front(pos, generated_vertices, generated_triangles);
-                    generate_back(pos, generated_vertices, generated_triangles);
-                    generate_top(pos, generated_vertices, generated_triangles);
-                    generate_bottom(pos, generated_vertices, generated_triangles);
-                    generate_right(pos, generated_vertices, generated_triangles);
-                    generate_left(pos, generated_vertices, generated_triangles);
+                    if(block_ids[get_1d_index_from_3d(x - 1, y, z)] == 0) {
+                        generate_left(pos, generated_vertices, generated_triangles);
+                    }
+                    
+                    if(block_ids[get_1d_index_from_3d(x + 1, y, z)] == 0) {
+                        generate_right(pos, generated_vertices, generated_triangles);
+                    }
+
+                    if(block_ids[get_1d_index_from_3d(x, y - 1, z)] == 0) {
+                        generate_bottom(pos, generated_vertices, generated_triangles);
+                    }
+                    
+                    if(block_ids[get_1d_index_from_3d(x, y + 1, z)] == 0) {
+                        generate_top(pos, generated_vertices, generated_triangles);
+                    }
+
+                    if(block_ids[get_1d_index_from_3d(x, y, z - 1)] == 0) {
+                        generate_front(pos, generated_vertices, generated_triangles);
+                    }
+                    
+                    if(block_ids[get_1d_index_from_3d(x, y, z + 1)] == 0) {
+                        generate_back(pos, generated_vertices, generated_triangles);
+                    }
                 }
             }
         }

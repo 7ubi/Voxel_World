@@ -14,6 +14,16 @@ vertex generate_vertex(const float3 position, const float3 normal, const float2 
     return vertex;
 }
 
+void generate_triangles(RWStructuredBuffer<int> generated_triangles)
+{
+    generated_triangles[current_index] = current_index;
+    generated_triangles[current_index + 1] = current_index + 2;
+    generated_triangles[current_index + 2] = current_index + 1;
+    generated_triangles[current_index + 3] = current_index + 3;
+    generated_triangles[current_index + 4] = current_index + 5;
+    generated_triangles[current_index + 5] = current_index + 4;
+}
+
 void generate_front(const float3 position, RWStructuredBuffer<vertex> generated_vertices, RWStructuredBuffer<int> generated_triangles)
 {
     const float3 forward = float3(0, 0, -1);
@@ -26,12 +36,7 @@ void generate_front(const float3 position, RWStructuredBuffer<vertex> generated_
     generated_vertices[current_index + 4] = generate_vertex(position + float3(1, 1, 0), forward, float2(1, 1));
     generated_vertices[current_index + 5] = generate_vertex(position + float3(0, 1, 0), forward, float2(0, 1));
 
-    generated_triangles[current_index] = current_index;
-    generated_triangles[current_index + 1] = current_index + 2;
-    generated_triangles[current_index + 2] = current_index + 1;
-    generated_triangles[current_index + 3] = current_index + 3;
-    generated_triangles[current_index + 4] = current_index + 5;
-    generated_triangles[current_index + 5] = current_index + 4;
+    generate_triangles(generated_triangles);
     current_index += 6;
 }
 
@@ -47,12 +52,7 @@ void generate_back(const float3 position, RWStructuredBuffer<vertex> generated_v
     generated_vertices[current_index + 4] = generate_vertex(position + float3(0, 1, 1), back, float2(1, 1));
     generated_vertices[current_index + 5] = generate_vertex(position + float3(1, 1, 1), back, float2(0, 1));
 
-    generated_triangles[current_index] = current_index;
-    generated_triangles[current_index + 1] = current_index + 2;
-    generated_triangles[current_index + 2] = current_index + 1;
-    generated_triangles[current_index + 3] = current_index + 3;
-    generated_triangles[current_index + 4] = current_index + 5;
-    generated_triangles[current_index + 5] = current_index + 4;
+    generate_triangles(generated_triangles);
     current_index += 6;
 }
 
@@ -68,12 +68,7 @@ void generate_top(const float3 position, RWStructuredBuffer<vertex> generated_ve
     generated_vertices[current_index + 4] = generate_vertex(position + float3(1, 1, 1), up, float2(1, 1));
     generated_vertices[current_index + 5] = generate_vertex(position + float3(0, 1, 1), up, float2(0, 1));
 
-    generated_triangles[current_index] = current_index;
-    generated_triangles[current_index + 1] = current_index + 2;
-    generated_triangles[current_index + 2] = current_index + 1;
-    generated_triangles[current_index + 3] = current_index + 3;
-    generated_triangles[current_index + 4] = current_index + 5;
-    generated_triangles[current_index + 5] = current_index + 4;
+    generate_triangles(generated_triangles);
     current_index += 6;
 }
 
@@ -89,12 +84,7 @@ void generate_bottom(const float3 position, RWStructuredBuffer<vertex> generated
     generated_vertices[current_index + 4] = generate_vertex(position + float3(1, 0, 0), down, float2(1, 1));
     generated_vertices[current_index + 5] = generate_vertex(position + float3(0, 0, 0), down, float2(0, 1));
 
-    generated_triangles[current_index] = current_index;
-    generated_triangles[current_index + 1] = current_index + 2;
-    generated_triangles[current_index + 2] = current_index + 1;
-    generated_triangles[current_index + 3] = current_index + 3;
-    generated_triangles[current_index + 4] = current_index + 5;
-    generated_triangles[current_index + 5] = current_index + 4;
+    generate_triangles(generated_triangles);
     current_index += 6;
 }
 
@@ -110,12 +100,7 @@ void generate_left(const float3 position, RWStructuredBuffer<vertex> generated_v
     generated_vertices[current_index + 4] = generate_vertex(position + float3(0, 1, 0), left, float2(1, 1));
     generated_vertices[current_index + 5] = generate_vertex(position + float3(0, 1, 1), left, float2(0, 1));
 
-    generated_triangles[current_index] = current_index;
-    generated_triangles[current_index + 1] = current_index + 2;
-    generated_triangles[current_index + 2] = current_index + 1;
-    generated_triangles[current_index + 3] = current_index + 3;
-    generated_triangles[current_index + 4] = current_index + 5;
-    generated_triangles[current_index + 5] = current_index + 4;
+    generate_triangles(generated_triangles);
     current_index += 6;
 }
 
@@ -131,11 +116,6 @@ void generate_right(const float3 position, RWStructuredBuffer<vertex> generated_
     generated_vertices[current_index + 4] = generate_vertex(position + float3(1, 1, 1), right, float2(1, 1));
     generated_vertices[current_index + 5] = generate_vertex(position + float3(1, 1, 0), right, float2(0, 1));
 
-    generated_triangles[current_index] = current_index;
-    generated_triangles[current_index + 1] = current_index + 2;
-    generated_triangles[current_index + 2] = current_index + 1;
-    generated_triangles[current_index + 3] = current_index + 3;
-    generated_triangles[current_index + 4] = current_index + 5;
-    generated_triangles[current_index + 5] = current_index + 4;
+    generate_triangles(generated_triangles);
      current_index += 6;
 }
