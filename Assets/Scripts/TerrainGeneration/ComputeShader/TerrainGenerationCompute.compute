@@ -1,4 +1,4 @@
-#pragma kernel CreateBlock
+#pragma kernel create_chunk
 #include "Noise.compute"
 #include "BlockGeneration.compute"
 
@@ -7,29 +7,57 @@
 float4 offset;
 float min_height;
 float max_height;
-
+int chunk_size;
 
 RWStructuredBuffer<vertex> generated_vertices;
 RWStructuredBuffer<int> generated_triangles;
+RWStructuredBuffer<int> block_ids;
 
 
-[numthreads(8,1,1)]
-void CreateBlock (uint3 id : SV_DispatchThreadID)
+int get_1d_index_from_3d(const int x, const int y, const int z)
 {
-    for(int x = 0; x < 8; x++)
+    return (z * chunk_size * max_height) + (y * chunk_size) + x;
+}
+
+void generate_chunk_block_ids()
+{
+    for(int x = 0; x < chunk_size; x++)
     {
-        for(int z = 0; z < 8; z++)
+        for(int z = 0; z < chunk_size; z++)
         {
-            for(int y = 0; y < int(snoise(float2((x + offset.x) / SCALE, (z + offset.z) / SCALE)) * max_height + min_height); y++) {
-                const float3 pos = float3(x, y, z);
-                generate_front(pos, generated_vertices, generated_triangles);
-                generate_back(pos, generated_vertices, generated_triangles);
-                generate_top(pos, generated_vertices, generated_triangles);
-                generate_bottom(pos, generated_vertices, generated_triangles);
-                generate_right(pos, generated_vertices, generated_triangles);
-                generate_left(pos, generated_vertices, generated_triangles);
+            for(int y = 0; y < int(snoise(float2((x + offset.x) / SCALE, (z + offset.z) / SCALE)) * (max_height - min_height) + min_height); y++) {
+                block_ids[get_1d_index_from_3d(x, y, z)] = 1;
             }
         }
-    
     }
+}
+
+void generate_vertices()
+{
+    for(int x = 0; x < chunk_size; x++)
+    {
+        for(int y = 0; y < max_height; y++)
+        {
+            for(int z = 0; z < chunk_size; z++)
+            {
+                if(block_ids[get_1d_index_from_3d(x, y, z)] == 1)
+                {
+                    const float3 pos = float3(x, y, z);
+                    generate_front(pos, generated_vertices, generated_triangles);
+                    generate_back(pos, generated_vertices, generated_triangles);
+                    generate_top(pos, generated_vertices, generated_triangles);
+                    generate_bottom(pos, generated_vertices, generated_triangles);
+                    generate_right(pos, generated_vertices, generated_triangles);
+                    generate_left(pos, generated_vertices, generated_triangles);
+                }
+            }
+        }
+    }
+}
+
+[numthreads(8,1,1)]
+void create_chunk (uint3 id : SV_DispatchThreadID)
+{
+    generate_chunk_block_ids();
+    generate_vertices();
 }

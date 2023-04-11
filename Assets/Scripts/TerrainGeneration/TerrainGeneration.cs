@@ -1,20 +1,26 @@
 using System;
 using UnityEngine;
+using UnityEngine.Serialization;
 
 namespace TerrainGeneration
 {
     public class TerrainGeneration : MonoBehaviour
     {
-        [SerializeField]
-        private ComputeShader terrainGenerationCompute;
+        [SerializeField] private ComputeShader terrainGenerationCompute;
+        
+        [SerializeField] private int minHeight;
+        [SerializeField] private int maxHeight;
+        [SerializeField] private int chunkSize;
+        
+        private const int SourceVertStride = sizeof(float) * (3 + 3 + 2);
         
         private ComputeBuffer _verticesBuffer;
         private ComputeBuffer _triangleBuffer;
+        private ComputeBuffer _blockIdBuffer;
 
-        private const int SourceVertStride = sizeof(float) * (3 + 3 + 2);
-        
         private Vertex[] _vertices;
         private int[] _triangles;
+        private int[] _blockIds;
         
         private Mesh _mesh;
 
@@ -23,16 +29,14 @@ namespace TerrainGeneration
         private Vector2[] uvs;
         
         private MeshFilter _meshFilter;
-
-        private const int minHeight = 20;
-        private const int maxHeight = 20;
-
+        
         private void Start()
         {
             _meshFilter = GetComponent<MeshFilter>();
             _mesh = new Mesh();
-            _vertices = new Vertex[36 * 16 * 16 * 16];
-            _triangles = new int[36 * 16 * 16 * 16];
+            _vertices = new Vertex[36 * chunkSize * chunkSize * maxHeight];
+            _triangles = new int[36 * chunkSize * chunkSize * maxHeight];
+            _blockIds = new int[chunkSize * chunkSize * maxHeight];
             GenerateTerrain();
         }
         
@@ -56,18 +60,22 @@ namespace TerrainGeneration
 
         private void GenerateTerrain()
         {
-            var kernelId = terrainGenerationCompute.FindKernel("CreateBlock");
+            var kernelId = terrainGenerationCompute.FindKernel("create_chunk");
 
             _verticesBuffer = new ComputeBuffer(_vertices.Length, SourceVertStride, ComputeBufferType.Append);
             _triangleBuffer = new ComputeBuffer(_triangles.Length, sizeof(int), ComputeBufferType.Append);
+            _blockIdBuffer = new ComputeBuffer(_blockIds.Length, sizeof(int), ComputeBufferType.Append);
 
             _verticesBuffer.SetData(_vertices);
             _triangleBuffer.SetData(_triangles);
+            _blockIdBuffer.SetData(_blockIds);
             terrainGenerationCompute.SetBuffer(kernelId, "generated_vertices", _verticesBuffer);
             terrainGenerationCompute.SetBuffer(kernelId, "generated_triangles", _triangleBuffer);
+            terrainGenerationCompute.SetBuffer(kernelId, "block_ids", _blockIdBuffer);
             terrainGenerationCompute.SetVector("offset", new Vector4(transform.position.x, 0, transform.position.z, 0));
             terrainGenerationCompute.SetFloat("min_height", minHeight);
             terrainGenerationCompute.SetFloat("max_height", maxHeight);
+            terrainGenerationCompute.SetInt("chunk_size", chunkSize);
 
             var time = DateTime.Now;
             terrainGenerationCompute.Dispatch(kernelId, 8, 1, 1);
