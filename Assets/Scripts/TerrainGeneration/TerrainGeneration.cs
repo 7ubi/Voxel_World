@@ -58,6 +58,10 @@ namespace TerrainGeneration
             _uvs = new Vector2[_verticesFromBuffer.Length];
             for(var i = 0; i < _verticesFromBuffer.Length; i++) {
                 var vertex = _verticesFromBuffer[i];
+                if (i > 1 && vertex.position == new Vector3(0, 0, 0))
+                {
+                    break;
+                }
                 _vertices[i] = vertex.position;
                 _normals[i] = vertex.normal;
                 _uvs[i] = vertex.uv;
@@ -74,9 +78,9 @@ namespace TerrainGeneration
         {
             _kernelId = terrainGenerationCompute.FindKernel("create_chunk");
 
-            _verticesBuffer = new ComputeBuffer(_verticesFromBuffer.Length, SourceVertStride, ComputeBufferType.Append);
-            _triangleBuffer = new ComputeBuffer(_triangles.Length, sizeof(int), ComputeBufferType.Append);
-            _blockIdBuffer = new ComputeBuffer(_blockIds.Length, sizeof(int), ComputeBufferType.Append);
+            _verticesBuffer = new ComputeBuffer(_verticesFromBuffer.Length, SourceVertStride);
+            _triangleBuffer = new ComputeBuffer(_triangles.Length, sizeof(int));
+            _blockIdBuffer = new ComputeBuffer(_blockIds.Length, sizeof(int));
 
             _verticesBuffer.SetData(_verticesFromBuffer);
             _triangleBuffer.SetData(_triangles);
@@ -101,10 +105,11 @@ namespace TerrainGeneration
             time = DateTime.Now;
             _verticesBuffer.GetData(_verticesFromBuffer);
             _triangleBuffer.GetData(_triangles);
+            Log("Time to get Buffer data: " + (DateTime.Now - time));
             GenerateMesh();
             _isGenerated = true;
-            CleanUp();
             Log("Time to generate Mesh: " + (DateTime.Now - time));
+            CleanUp();
         }
 
         private void CleanUp()

@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using UnityEngine;
 
@@ -7,7 +8,7 @@ namespace TerrainGeneration
     {
         [SerializeField] private GameObject chunk;
 
-        private const int ChunksToGenerate = 64;
+        private const int ChunksToGenerate = 32 * 32;
         private int _numChunks = 0;
         private int _x = 0;
         private int _z = 0;
@@ -27,9 +28,9 @@ namespace TerrainGeneration
             var generatedChunk = Instantiate(chunk, new Vector3(_x * 16, 0, _z * 16), Quaternion.identity);
             yield return new WaitUntil(() => generatedChunk.GetComponent<TerrainGeneration>().IsGenerated);
             _x++;
-            if (_x == 8)
+            if (_x == (int)Math.Sqrt(ChunksToGenerate))
             {
-                _z = (_z + 1) % 8;
+                _z = (_z + 1) % (int)Math.Sqrt(ChunksToGenerate);
                 _x = 0;
             }
             _numChunks++;

@@ -2,7 +2,8 @@
 #include "Noise.compute"
 #include "BlockGeneration.compute"
 
-#define SCALE 100.0
+#define SCALE 200.0
+#define SCALE_3D 50.0
 #define THRESHOLD 0.8
 
 float4 offset;
@@ -37,7 +38,7 @@ int get_height(const int x, const int z)
 
 float snoise_mapped(const int x, const int y, const int z)
 {
-    return map(snoise(float3((x + offset.x) / SCALE, y / SCALE, (z + offset.z) / SCALE)),-1, 1, 0, 1);
+    return map(snoise(float3((x + offset.x) / SCALE_3D, y / SCALE_3D, (z + offset.z) / SCALE_3D)),-1, 1, 0, 1);
 }
 
 void generate_chunk_block_ids()
