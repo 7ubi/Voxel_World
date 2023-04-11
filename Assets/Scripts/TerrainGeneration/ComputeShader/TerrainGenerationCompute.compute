@@ -2,7 +2,8 @@
 #include "Noise.compute"
 #include "BlockGeneration.compute"
 
-#define SCALE 75
+#define SCALE 100.0
+#define THRESHOLD 0.8
 
 float4 offset;
 float min_height;
@@ -22,9 +23,21 @@ int get_1d_index_from_3d(int x, int y, int z)
     return (z * (chunk_size + 2) * (max_height + 2)) + (y * (chunk_size + 2)) + x;
 }
 
+float map(const float value, const float min1, const float max1, const float min2, const float max2)
+{
+    return (value - min1) / (max1 - min1) * (max2 - min2) + min2;
+}
+
 int get_height(const int x, const int z)
 {
-    return int(snoise(float2((x + offset.x) / SCALE, (z + offset.z) / SCALE)) * (max_height - min_height) + min_height);
+    const float mapped_noise_value
+    = map(snoise(float2((x + offset.x) / SCALE, (z + offset.z) / SCALE)), -1, 1, 0, 1); 
+    return int(mapped_noise_value * (max_height - min_height) + min_height);
+}
+
+float snoise_mapped(const int x, const int y, const int z)
+{
+    return map(snoise(float3((x + offset.x) / SCALE, y / SCALE, (z + offset.z) / SCALE)),-1, 1, 0, 1);
 }
 
 void generate_chunk_block_ids()
@@ -35,7 +48,15 @@ void generate_chunk_block_ids()
         {
             for(int y = -1; y <= max_height; y++)
             {
-                block_ids[get_1d_index_from_3d(x, y, z)] = y < get_height(x, z) ? 1: 0;
+                if(y < get_height(x, z))
+                {
+                    if(y < 3 || snoise_mapped(x, y, z) < THRESHOLD)
+                    {
+                        block_ids[get_1d_index_from_3d(x, y, z)] = 1;
+                        continue;
+                    }
+                }
+                block_ids[get_1d_index_from_3d(x, y, z)] = 0;
             }
         }
     }

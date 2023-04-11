@@ -49,10 +49,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   terrainGenerationCompute: {fileID: 7200000, guid: 8a19ee62b0140b94a93acf1cc260a894,
     type: 3}
-  minHeight: 20
-  maxHeight: 30
-  chunkSize: 8
-  debugMessages: 0
+  minHeight: 60
+  maxHeight: 100
+  chunkSize: 16
+  debugMessages: 1
 --- !u!23 &6060964036449959521
 MeshRenderer:
   m_ObjectHideFlags: 0

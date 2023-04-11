@@ -24,7 +24,8 @@ void generate_triangles(RWStructuredBuffer<int> generated_triangles)
     generated_triangles[current_index + 5] = current_index + 4;
 }
 
-void generate_front(const float3 position, RWStructuredBuffer<vertex> generated_vertices, RWStructuredBuffer<int> generated_triangles)
+void generate_front(const float3 position, RWStructuredBuffer<vertex> generated_vertices,
+    RWStructuredBuffer<int> generated_triangles)
 {
     const float3 forward = float3(0, 0, -1);
     
@@ -40,7 +41,8 @@ void generate_front(const float3 position, RWStructuredBuffer<vertex> generated_
     current_index += 6;
 }
 
-void generate_back(const float3 position, RWStructuredBuffer<vertex> generated_vertices, RWStructuredBuffer<int> generated_triangles)
+void generate_back(const float3 position, RWStructuredBuffer<vertex> generated_vertices,
+    RWStructuredBuffer<int> generated_triangles)
 {
     const float3 back = float3(0, 0, 1);
     
@@ -56,7 +58,8 @@ void generate_back(const float3 position, RWStructuredBuffer<vertex> generated_v
     current_index += 6;
 }
 
-void generate_top(const float3 position, RWStructuredBuffer<vertex> generated_vertices, RWStructuredBuffer<int> generated_triangles)
+void generate_top(const float3 position, RWStructuredBuffer<vertex> generated_vertices,
+    RWStructuredBuffer<int> generated_triangles)
 {
     const float3 up = float3(0, 1, 0);
     
@@ -72,7 +75,8 @@ void generate_top(const float3 position, RWStructuredBuffer<vertex> generated_ve
     current_index += 6;
 }
 
-void generate_bottom(const float3 position, RWStructuredBuffer<vertex> generated_vertices, RWStructuredBuffer<int> generated_triangles)
+void generate_bottom(const float3 position, RWStructuredBuffer<vertex> generated_vertices,
+    RWStructuredBuffer<int> generated_triangles)
 {
     const float3 down = float3(0, -1, 0);
     
@@ -88,7 +92,8 @@ void generate_bottom(const float3 position, RWStructuredBuffer<vertex> generated
     current_index += 6;
 }
 
-void generate_left(const float3 position, RWStructuredBuffer<vertex> generated_vertices, RWStructuredBuffer<int> generated_triangles)
+void generate_left(const float3 position, RWStructuredBuffer<vertex> generated_vertices,
+    RWStructuredBuffer<int> generated_triangles)
 {
     const float3 left = float3(-1, 0, 0);
     
@@ -104,7 +109,8 @@ void generate_left(const float3 position, RWStructuredBuffer<vertex> generated_v
     current_index += 6;
 }
 
-void generate_right(const float3 position, RWStructuredBuffer<vertex> generated_vertices, RWStructuredBuffer<int> generated_triangles)
+void generate_right(const float3 position, RWStructuredBuffer<vertex> generated_vertices,
+    RWStructuredBuffer<int> generated_triangles)
 {
     const float3 right = float3(1, 0, 0);
     
