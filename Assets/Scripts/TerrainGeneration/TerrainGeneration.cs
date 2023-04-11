@@ -1,29 +1,31 @@
 using System;
-using System.Threading;
 using UnityEngine;
-using UnityEngine.Rendering;
 
 namespace TerrainGeneration
 {
     public class TerrainGeneration : MonoBehaviour
     {
+        [SerializeField]
+        private ComputeShader terrainGenerationCompute;
+        
         private ComputeBuffer _verticesBuffer;
         private ComputeBuffer _triangleBuffer;
 
+        private const int SourceVertStride = sizeof(float) * (3 + 3 + 2);
+        
         private Vertex[] _vertices;
         private int[] _triangles;
         
-        private const int SourceVertStride = sizeof(float) * (3 + 3 + 2);
-
-        private MeshFilter _meshFilter;
-        
-        public ComputeShader terrainGenerationCompute;
-
         private Mesh _mesh;
 
         private Vector3[] vertices;
         private Vector3[] normals;
         private Vector2[] uvs;
+        
+        private MeshFilter _meshFilter;
+
+        private const int minHeight = 20;
+        private const int maxHeight = 20;
 
         private void Start()
         {
@@ -36,8 +38,6 @@ namespace TerrainGeneration
         
         private void GenerateMesh()
         {
-            
-            var time = DateTime.Now;
             vertices = new Vector3[_vertices.Length];
             normals = new Vector3[_vertices.Length];
             uvs = new Vector2[_vertices.Length];
@@ -66,6 +66,8 @@ namespace TerrainGeneration
             terrainGenerationCompute.SetBuffer(kernelId, "generated_vertices", _verticesBuffer);
             terrainGenerationCompute.SetBuffer(kernelId, "generated_triangles", _triangleBuffer);
             terrainGenerationCompute.SetVector("offset", new Vector4(transform.position.x, 0, transform.position.z, 0));
+            terrainGenerationCompute.SetFloat("min_height", minHeight);
+            terrainGenerationCompute.SetFloat("max_height", maxHeight);
 
             var time = DateTime.Now;
             terrainGenerationCompute.Dispatch(kernelId, 8, 1, 1);

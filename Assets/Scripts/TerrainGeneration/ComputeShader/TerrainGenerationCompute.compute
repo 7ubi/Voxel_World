@@ -2,7 +2,12 @@
 #include "Noise.compute"
 #include "BlockGeneration.compute"
 
+#define SCALE 75
+
 float4 offset;
+float min_height;
+float max_height;
+
 
 RWStructuredBuffer<vertex> generated_vertices;
 RWStructuredBuffer<int> generated_triangles;
@@ -11,14 +16,11 @@ RWStructuredBuffer<int> generated_triangles;
 [numthreads(8,1,1)]
 void CreateBlock (uint3 id : SV_DispatchThreadID)
 {
-    const int min_height = 10;
-    const int max_height = 20;
-    const float scale = 15;
     for(int x = 0; x < 8; x++)
     {
         for(int z = 0; z < 8; z++)
         {
-            for(int y = 0; y < int(snoise(float2((x + offset.x) / scale, (z + offset.z) / scale)) * max_height) + min_height; y++) {
+            for(int y = 0; y < int(snoise(float2((x + offset.x) / SCALE, (z + offset.z) / SCALE)) * max_height + min_height); y++) {
                 const float3 pos = float3(x, y, z);
                 generate_front(pos, generated_vertices, generated_triangles);
                 generate_back(pos, generated_vertices, generated_triangles);
